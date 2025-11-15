@@ -1,23 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Builder.io Plain JS example</title>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Instaverse &mdash; Modern Photo Sharing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="src/index.css" />
+    <script type="module" src="src/index.js"></script>
   </head>
-
   <body>
-    <header>
-      <div class="logo">MY SITE</div>
-      <div class="links">
-        <a class="link" href="/">Home</a>
-        <a class="link" href="/about">About</a>
-        <a class="link" href="/page-1">Page 1</a>
-        <a class="link" href="/page-2">Page 2</a>
-      </div>
-    </header>
-    <main id="app"></main>
-    <footer></footer>
+    <div class="app">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand">Instaverse</div>
+        <nav class="nav" aria-label="Main">
+          <a class="nav-item is-active" href="#">
+            <span class="icon">🏠</span>
+            <span>Home</span>
+          </a>
+          <a class="nav-item" href="#explore" aria-label="Explore feed">
+            <span class="icon">🔎</span>
+            <span>Explore</span>
+          </a>
+          <a class="nav-item" href="#reels" aria-label="Watch reels">
+            <span class="icon">🎬</span>
+            <span>Reels</span>
+          </a>
+          <a class="nav-item" href="#messages" aria-label="Open messages">
+            <span class="icon">💬</span>
+            <span>Messages</span>
+          </a>
+          <a class="nav-item" href="#notifications" aria-label="View notifications">
+            <span class="icon">❤️</span>
+            <span>Notifications</span>
+          </a>
+          <a class="nav-item" href="#profile" aria-label="Open your profile">
+            <span class="icon">😊</span>
+            <span>Profile</span>
+          </a>
+        </nav>
+        <button class="create-button" type="button">+ Create</button>
+      </aside>
 
-    <script src="src/index.js"></script>
+      <main class="main" aria-live="polite">
+        <section class="stories" aria-label="Stories">
+          <header class="section-heading">
+            <h1>Stories</h1>
+            <button type="button" class="stories-cta">See all</button>
+          </header>
+          <div id="stories" class="stories-strip" role="list"></div>
+        </section>
+
+        <section class="feed" aria-label="Feed" id="feed"></section>
+      </main>
+
+      <aside class="right-panel" aria-label="Suggestions">
+        <section class="profile-card">
+          <img
+            class="profile-avatar"
+            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&w=200&q=80"
+            alt="Portrait of Ava Thompson"
+            width="56"
+            height="56"
+          />
+          <div class="profile-info">
+            <span class="handle">ava.thompson</span>
+            <span class="name">Ava Thompson</span>
+          </div>
+          <button class="switch" type="button">Switch</button>
+        </section>
+
+        <section class="suggestions">
+          <header class="section-heading">
+            <h2>Suggestions for you</h2>
+            <button type="button" class="stories-cta">See all</button>
+          </header>
+          <div id="suggestions" class="suggestions-list" role="list"></div>
+        </section>
+
+        <p class="meta-links">
+          About &bull; Help &bull; API &bull; Careers &bull; Privacy &bull; Terms &bull; Locations
+        </p>
+        <p class="copyright">&copy; 2024 Instaverse</p>
+      </aside>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a class="mobile-nav-item is-active" href="#">🏠<span>Home</span></a>
+      <a class="mobile-nav-item" href="#explore">🔎<span>Explore</span></a>
+      <a class="mobile-nav-item" href="#create">➕<span>Create</span></a>
+      <a class="mobile-nav-item" href="#reels">🎬<span>Reels</span></a>
+      <a class="mobile-nav-item" href="#profile">😊<span>Profile</span></a>
+    </nav>
   </body>
 </html>
