@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lana Del Rey Song Guessing Game 🎵</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8B4557;
+            --secondary: #D4A574;
+            --accent: #E8C4A2;
+            --dark: #2D1F2D;
+            --light: #F5E6D3;
+            --gold: #C9A227;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: linear-gradient(135deg, #1a0a0a 0%, #2D1F2D 50%, #1a1520 100%);
+            min-height: 100vh;
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        /* Dreamy Background Effects */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-effects::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(139, 69, 87, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 30%, rgba(212, 165, 116, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 80%, rgba(201, 162, 39, 0.08) 0%, transparent 45%);
+            animation: floatBg 20s ease-in-out infinite;
+        }
+
+        @keyframes floatBg {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, 2%) rotate(1deg); }
+            66% { transform: translate(-1%, 1%) rotate(-1deg); }
+        }
+
+        /* Vintage Film Grain */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--gold) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(201, 162, 39, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--accent);
+            opacity: 0.8;
+            letter-spacing: 0.1em;
+        }
+
+        /* Score Display */
+        .score-display {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 30px;
+            padding: 20px 40px;
+            background: rgba(45, 31, 45, 0.6);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-item .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .score-item .value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--gold);
+        }
+
+        /* Video Container */
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            aspect-ratio: 16/9;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5),
+                        0 0 100px rgba(139, 69, 87, 0.2);
+            border: 2px solid rgba(212, 165, 116, 0.3);
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 10, 10, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+        }
+
+        .video-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Countdown Timer */
+        .countdown-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin-bottom: 20px;
+        }
+
+        .countdown-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .countdown-ring svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .countdown-ring circle {
+            fill: none;
+            stroke-width: 4;
+        }
+
+        .countdown-ring .bg {
+            stroke: rgba(212, 165, 116, 0.2);
+        }
+
+        .countdown-ring .progress {
+            stroke: url(#gradient);
+            stroke-linecap: round;
+            stroke-dasharray: 502;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .countdown-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            color: var(--gold);
+            text-shadow: 0 0 30px rgba(201, 162, 39, 0.5);
+        }
+
+        .countdown-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--secondary);
+        }
+
+        /* Listening Animation */
+        .listening-animation {
+            display: flex;
+            gap: 4px;
+            align-items: flex-end;
+            height: 40px;
+            margin-top: 20px;
+        }
+
+        .listening-animation .bar {
+            width: 6px;
+            background: linear-gradient(to top, var(--primary), var(--gold));
+            border-radius: 3px;
+            animation: pulse 0.8s ease-in-out infinite;
+        }
+
+        .listening-animation .bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+        .listening-animation .bar:nth-child(2) { height: 35px; animation-delay: 0.1s; }
+        .listening-animation .bar:nth-child(3) { height: 25px; animation-delay: 0.2s; }
+        .listening-animation .bar:nth-child(4) { height: 40px; animation-delay: 0.3s; }
+        .listening-animation .bar:nth-child(5) { height: 30px; animation-delay: 0.4s; }
+        .listening-animation .bar:nth-child(6) { height: 35px; animation-delay: 0.5s; }
+        .listening-animation .bar:nth-child(7) { height: 20px; animation-delay: 0.6s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.5); }
+        }
+
+        /* Answer Options */
+        .options-container {
+            width: 100%;
+            max-width: 640px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            padding: 20px 25px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--light);
+            background: rgba(45, 31, 45, 0.6);
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .option-btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .option-btn.correct {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4CAF50;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .option-btn.incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: #f44336;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Play Button */
+        .play-btn {
+            padding: 20px 60px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--dark);
+            background: linear-gradient(135deg, var(--secondary), var(--gold));
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 40px rgba(201, 162, 39, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .play-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+
+        .play-btn:hover::after {
+            left: 100%;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(201, 162, 39, 0.4);
+        }
+
+        .play-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Result Message */
+        .result-message {
+            text-align: center;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-message.correct {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .result-message.incorrect {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .result-message h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .result-message p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Game Over Screen */
+        .game-over {
+            text-align: center;
+            padding: 40px;
+            background: rgba(45, 31, 45, 0.8);
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .game-over h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--secondary), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .game-over .final-score {
+            font-size: 4rem;
+            font-family: 'Playfair Display', serif;
+            color: var(--gold);
+            margin: 20px 0;
+        }
+
+        .game-over .message {
+            font-size: 1.3rem;
+            font-style: italic;
+            color: var(--accent);
+            margin-bottom: 30px;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+            padding: 60px 40px;
+            background: rgba(45, 31, 45, 0.6);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            max-width: 600px;
+        }
+
+        .start-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .start-screen p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: var(--accent);
+        }
+
+        .start-screen .rules {
+            text-align: left;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .start-screen .rules li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .start-screen .rules li::before {
+            content: '♪';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+        }
+
+        /* Hidden utility */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+
+            .score-display {
+                gap: 20px;
+                padding: 15px 25px;
+            }
+
+            .countdown-container {
+                width: 140px;
+                height: 140px;
+            }
+
+            .countdown-number {
+                font-size: 3rem;
+            }
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            max-width: 640px;
+            height: 6px;
+            background: rgba(212, 165, 116, 0.2);
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--gold));
+            transition: width 0.5s ease;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-effects"></div>
+    <div class="grain"></div>
+
+    <div class="container">
+        <header class="header">
+            <h1>Lana Del Rey</h1>
+            <p>How well do you know her songs?</p>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="start-screen">
+            <h2>Welcome, Lana Fan!</h2>
+            <p>Test your knowledge of the queen of sadcore herself</p>
+            <ul class="rules">
+                <li>Listen to a 5-second clip of a song</li>
+                <li>Choose the correct song title from 4 options</li>
+                <li>Score points for each correct answer</li>
+                <li>10 rounds to prove your devotion</li>
+            </ul>
+            <button class="play-btn" onclick="startGame()">
+                Begin the Journey
+            </button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="label">Score</div>
+                    <div class="value" id="score">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="label">Round</div>
+                    <div class="value"><span id="round">1</span>/10</div>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progressBar" style="width: 10%"></div>
+            </div>
+
+            <div class="video-container">
+                <div id="player"></div>
+                <div class="video-overlay" id="videoOverlay">
+                    <div class="countdown-container" id="countdownContainer">
+                        <div class="countdown-ring">
+                            <svg viewBox="0 0 180 180">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#8B4557"/>
+                                        <stop offset="50%" stop-color="#C9A227"/>
+                                        <stop offset="100%" stop-color="#D4A574"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="bg" cx="90" cy="90" r="80"/>
+                                <circle class="progress" id="countdownProgress" cx="90" cy="90" r="80"/>
+                            </svg>
+                        </div>
+                        <div class="countdown-number" id="countdownNumber">5</div>
+                    </div>
+                    <div class="countdown-label" id="countdownLabel">Get Ready...</div>
+                    <div class="listening-animation hidden" id="listeningAnimation">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="resultMessage" class="result-message hidden"></div>
+
+            <div class="options-container" id="optionsContainer">
+                <!-- Options will be populated by JS -->
+            </div>
+
+            <button class="play-btn" id="playBtn" onclick="playClip()">
+                Play Clip
+            </button>
+            <button class="play-btn hidden" id="nextBtn" onclick="nextRound()">
+                Next Song
+            </button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="game-over hidden">
+            <h2>Game Over</h2>
+            <div class="final-score"><span id="finalScore">0</span>/10</div>
+            <p class="message" id="gameOverMessage"></p>
+            <button class="play-btn" onclick="restartGame()">
+                Play Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Lana Del Rey Songs Database with YouTube video IDs and timestamps
+        const songs = [
+            { title: "Summertime Sadness", videoId: "TdrL3QxjyVw", startTime: 60 },
+            { title: "Video Games", videoId: "cE6wxDqdOV0", startTime: 55 },
+            { title: "Young and Beautiful", videoId: "o_1aF54DO60", startTime: 65 },
+            { title: "Born to Die", videoId: "Bag1gUxuU0g", startTime: 45 },
+            { title: "Blue Jeans", videoId: "JRWox-i6aAk", startTime: 50 },
+            { title: "Ride", videoId: "Py_-3di1yx0", startTime: 180 },
+            { title: "National Anthem", videoId: "sxDdEPED0h8", startTime: 90 },
+            { title: "West Coast", videoId: "oKxuiw3iMBE", startTime: 60 },
+            { title: "Ultraviolence", videoId: "ZFWC4SiZBao", startTime: 50 },
+            { title: "Shades of Cool", videoId: "rJABBmAMXnY", startTime: 70 },
+            { title: "Brooklyn Baby", videoId: "T5xcnjAG8pE", startTime: 55 },
+            { title: "High By The Beach", videoId: "QnxpHIl5Ynw", startTime: 45 },
+            { title: "Love", videoId: "3-NTv0CdFCk", startTime: 60 },
+            { title: "Lust For Life", videoId: "eP4eqhWc7sI", startTime: 75 },
+            { title: "Mariners Apartment Complex", videoId: "_O_lnXi_Y6k", startTime: 50 },
+            { title: "Venice Bitch", videoId: "Qg3DxELVPj4", startTime: 65 },
+            { title: "Doin' Time", videoId: "qolmz4FlnZ0", startTime: 35 },
+            { title: "Norman F***ing Rockwell", videoId: "wPt0nji04n8", startTime: 55 },
+            { title: "Chemtrails Over The Country Club", videoId: "LrSX_OcpeJg", startTime: 40 },
+            { title: "White Dress", videoId: "VqqViwPCgkc", startTime: 50 },
+            { title: "Blue Banisters", videoId: "PgaLRVEYHxQ", startTime: 45 },
+            { title: "Arcadia", videoId: "GC9bkvVOiT4", startTime: 55 },
+            { title: "Say Yes To Heaven", videoId: "OiDcHig7JHU", startTime: 40 },
+            { title: "A&W", videoId: "JcLdTpXzfMk", startTime: 60 },
+            { title: "Did you know that there's a tunnel under Ocean Blvd", videoId: "0qz4a0gfKKk", startTime: 50 },
+            { title: "Off to the Races", videoId: "vBlFCH0d3o4", startTime: 25 },
+            { title: "Dark Paradise", videoId: "Lr3cUKmFsEY", startTime: 50 },
+            { title: "Gods & Monsters", videoId: "_kJpcRKoXK0", startTime: 55 },
+            { title: "Cruel World", videoId: "XfXQDwcXqXg", startTime: 60 },
+            { title: "Pretty When You Cry", videoId: "G_yiyjnQ4Go", startTime: 75 },
+        ];
+
+        let player;
+        let currentRound = 0;
+        let score = 0;
+        let currentSong = null;
+        let gameSongs = [];
+        let countdownInterval;
+        let clipTimeout;
+
+        // Shuffle array
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Load YouTube IFrame API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: '',
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 0,
+                    'disablekb': 1,
+                    'fs': 0,
+                    'modestbranding': 1,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'iv_load_policy': 3
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            console.log('Player ready');
+        }
+
+        function onPlayerStateChange(event) {
+            // Handle player state changes if needed
+        }
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+
+            currentRound = 0;
+            score = 0;
+            gameSongs = shuffle(songs).slice(0, 10);
+
+            updateUI();
+            loadRound();
+        }
+
+        function loadRound() {
+            currentSong = gameSongs[currentRound];
+
+            // Reset UI
+            document.getElementById('resultMessage').classList.add('hidden');
+            document.getElementById('playBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').classList.add('hidden');
+            document.getElementById('videoOverlay').classList.remove('hidden');
+            document.getElementById('countdownContainer').classList.remove('hidden');
+            document.getElementById('listeningAnimation').classList.add('hidden');
+            document.getElementById('countdownLabel').textContent = 'Get Ready...';
+            document.getElementById('countdownNumber').textContent = '5';
+            document.getElementById('countdownProgress').style.strokeDashoffset = '0';
+
+            // Generate options
+            const options = generateOptions(currentSong);
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(option, btn);
+                btn.disabled = true;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Load video
+            if (player && player.loadVideoById) {
+                player.loadVideoById({
+                    videoId: currentSong.videoId,
+                    startSeconds: currentSong.startTime
+                });
+                player.pauseVideo();
+            }
+        }
+
+        function generateOptions(correctSong) {
+            let options = [correctSong.title];
+            const otherSongs = songs.filter(s => s.title !== correctSong.title);
+            const shuffledOthers = shuffle(otherSongs);
+
+            for (let i = 0; i < 3 && i < shuffledOthers.length; i++) {
+                options.push(shuffledOthers[i].title);
+            }
+
+            return shuffle(options);
+        }
+
+        function playClip() {
+            const playBtn = document.getElementById('playBtn');
+            playBtn.disabled = true;
+
+            // Start countdown animation
+            let countdown = 5;
+            const countdownNumber = document.getElementById('countdownNumber');
+            const countdownProgress = document.getElementById('countdownProgress');
+            const countdownLabel = document.getElementById('countdownLabel');
+            const listeningAnimation = document.getElementById('listeningAnimation');
+            const circumference = 2 * Math.PI * 80; // 502
+
+            countdownLabel.textContent = 'Listen carefully...';
+            listeningAnimation.classList.remove('hidden');
+
+            // Show video and play
+            document.getElementById('videoOverlay').classList.add('hidden');
+
+            if (player && player.seekTo) {
+                player.seekTo(currentSong.startTime);
+                player.playVideo();
+            }
+
+            // Animate countdown
+            const startTime = Date.now();
+            const duration = 5000;
+
+            countdownInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const remaining = Math.max(0, (duration - elapsed) / 1000);
+                const progress = elapsed / duration;
+
+                countdownNumber.textContent = Math.ceil(remaining);
+                countdownProgress.style.strokeDashoffset = (progress * circumference).toString();
+
+                if (elapsed >= duration) {
+                    clearInterval(countdownInterval);
+                    endClip();
+                }
+            }, 50);
+        }
+
+        function endClip() {
+            if (player && player.pauseVideo) {
+                player.pauseVideo();
+            }
+
+            // Show overlay with "Time's Up"
+            document.getElementById('videoOverlay').classList.remove('hidden');
+            document.getElementById('countdownContainer').classList.add('hidden');
+            document.getElementById('listeningAnimation').classList.remove('hidden');
+            document.getElementById('countdownLabel').textContent = "Time's up! Make your guess...";
+
+            // Enable options
+            const options = document.querySelectorAll('.option-btn');
+            options.forEach(btn => btn.disabled = false);
+
+            document.getElementById('playBtn').classList.add('hidden');
+        }
+
+        function checkAnswer(answer, btn) {
+            // Disable all buttons
+            const options = document.querySelectorAll('.option-btn');
+            options.forEach(b => b.disabled = true);
+
+            const isCorrect = answer === currentSong.title;
+            const resultMessage = document.getElementById('resultMessage');
+
+            if (isCorrect) {
+                score++;
+                btn.classList.add('correct');
+                resultMessage.className = 'result-message correct';
+                resultMessage.innerHTML = `
+                    <h3>✨ Correct! ✨</h3>
+                    <p>You really know your Lana!</p>
+                `;
+            } else {
+                btn.classList.add('incorrect');
+                // Highlight correct answer
+                options.forEach(b => {
+                    if (b.textContent === currentSong.title) {
+                        b.classList.add('correct');
+                    }
+                });
+                resultMessage.className = 'result-message incorrect';
+                resultMessage.innerHTML = `
+                    <h3>Not quite...</h3>
+                    <p>The song was "<strong>${currentSong.title}</strong>"</p>
+                `;
+            }
+
+            resultMessage.classList.remove('hidden');
+            updateUI();
+
+            // Show next button or end game
+            if (currentRound < 9) {
+                document.getElementById('nextBtn').classList.remove('hidden');
+            } else {
+                setTimeout(endGame, 2000);
+            }
+        }
+
+        function nextRound() {
+            currentRound++;
+            updateUI();
+            loadRound();
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('round').textContent = currentRound + 1;
+            document.getElementById('progressBar').style.width = `${((currentRound + 1) / 10) * 100}%`;
+        }
+
+        function endGame() {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            document.getElementById('finalScore').textContent = score;
+
+            const messages = {
+                10: "Born to slay! You're the ultimate Lana fan! 👑",
+                9: "Summertime Sadness expert! Almost perfect! 🌹",
+                8: "You've got that West Coast soul! 🌊",
+                7: "Pretty When You Cry... with joy! Great job! 💫",
+                6: "Young and Beautiful knowledge! 🎭",
+                5: "Ride or die fan, keep listening! 🏍️",
+                4: "Getting there, Blue Jeans! 👖",
+                3: "Time to revisit the discography! 🎵",
+                2: "Born to Die... trying! Keep going! 💔",
+                1: "Maybe start with Video Games? 🎮",
+                0: "Have you heard of Lana Del Rey? 😅"
+            };
+
+            document.getElementById('gameOverMessage').textContent = messages[score];
+        }
+
+        function restartGame() {
+            if (player && player.stopVideo) {
+                player.stopVideo();
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            startGame();
+        }
+    </script>
+</body>
+</html>
